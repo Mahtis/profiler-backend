@@ -1,10 +1,12 @@
 const express = require('express')
+const Account = require('./models/index').Account
 
-const PORT = 8080
+const PORT = 8000
 
 const app = express()
 
 app.get('/data', async function (req, res) {
+    //Account.create()
     res.status(200).send('<h1>YOU GET HERE</h1>')
 })
 
