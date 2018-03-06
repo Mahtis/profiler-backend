@@ -1,12 +1,13 @@
 const express = require('express')
 const Account = require('./models/index').Account
+const sequelize = require('./models/index').sequelize
 
 const PORT = 8000
 
 const app = express()
 
 app.get('/data', async function (req, res) {
-    await Account.sync( {force: true} )
+    await sequelize.sync({force: true})
     await Account.create( {username: 'Jeff'} )
     const jeff = await Account.findOne({where: {username: 'Jeff'}})
     res.status(200).send(`<h1>YOU GET HERE ${jeff.username}, ${jeff.id} </h1>`)
