@@ -6,8 +6,10 @@ const PORT = 8000
 const app = express()
 
 app.get('/data', async function (req, res) {
-    //Account.create()
-    res.status(200).send('<h1>YOU GET HERE</h1>')
+    await Account.sync( {force: true} )
+    await Account.create( {username: 'Jeff'} )
+    const jeff = await Account.findOne({where: {username: 'Jeff'}})
+    res.status(200).send(`<h1>YOU GET HERE ${jeff.username}, ${jeff.id} </h1>`)
 })
 
 app.get('*', async function (req, res) {

@@ -1,8 +1,10 @@
 const Sequelize = require('sequelize')
 const conf = require('../conf')
 
-
-const sequelize = new Sequelize(conf.DB_URL)
+console.log(conf.DB_URL)
+const sequelize = new Sequelize(conf.DB_URL, {
+  dialect: 'postgres'
+})
 
 const Profile = sequelize.define('profile', {
   id: {
@@ -79,14 +81,15 @@ const ResponseOption = sequelize.define('response_option', {
 const Account = sequelize.define('account', {
   id: {
     primaryKey: true,
-    type: Sequelize.UUIDV4
+    type: Sequelize.UUID,
+    defaultValue: Sequelize.UUIDV4
   },
   username: { type: Sequelize.STRING, unique: true, allowNull: false },
   password: { type: Sequelize.STRING },
   name: { type: Sequelize.STRING },
   birthdate: { type: Sequelize.DATEONLY },
   email: { type: Sequelize.STRING },
-  role: { type: Sequelize.ENUM }
+  role: { type: Sequelize.STRING }
 },
   {
     tableName: 'account',
