@@ -3,7 +3,8 @@ const conf = require('../conf')
 
 console.log(conf.DB_URL)
 const sequelize = new Sequelize(conf.DB_URL, {
-  dialect: 'postgres'
+  dialect: 'postgres',
+  logging: false
 })
 
 const Account = sequelize.define('account', {
@@ -14,13 +15,15 @@ const Account = sequelize.define('account', {
   },
   username: { type: Sequelize.STRING, unique: true, allowNull: false },
   password: { type: Sequelize.STRING },
-  name: { type: Sequelize.STRING },
+  firstName: { type: Sequelize.STRING },
+  lastName: { type: Sequelize.STRING },
   birthdate: { type: Sequelize.DATEONLY },
   email: { type: Sequelize.STRING },
   role: { type: Sequelize.STRING }
 },
   {
     tableName: 'account',
+    underscored: true,
     timestamps: true
   })
 
@@ -32,10 +35,12 @@ const Profile = sequelize.define('profile', {
   },
   account_id: { type: Sequelize.UUID },
   active: { type: Sequelize.BOOLEAN },
-  picture: { type: Sequelize.BLOB },
+  picture: { type: Sequelize.STRING },
+  thumbnail: { type: Sequelize.STRING }
 },
   {
     tableName: 'profile',
+    underscored: true,
     timestamps: true
   })
 
@@ -49,6 +54,7 @@ const Question = sequelize.define('question', {
 },
   {
     tableName: 'question',
+    underscored: true,
     timestamps: false
   })
 
@@ -63,6 +69,7 @@ const ResponseOption = sequelize.define('response_option', {
 },
   {
     tableName: 'response_option',
+    underscored: true,
     timestamps: false
   })
 
@@ -78,6 +85,7 @@ const ProfileQuestion = sequelize.define('profile_question', {
 },
   {
     tableName: 'profile_question',
+    underscored: true,
     timestamps: false
   })
 
@@ -93,29 +101,32 @@ const Response = sequelize.define('response', {
 },
   {
     tableName: 'response',
+    underscored: true,
     timestamps: true
   })
 
 Profile.belongsTo(Account, { foreignKey: 'account_id', targetKey: 'id' })
 Account.hasMany(Profile, { foreignKey: 'account_id', targetKey: 'id' })
 
-Profile.hasMany(ProfileQuestion, { foreignKey: 'profile_id', targetKey: 'id' })
-ProfileQuestion.belongsTo(Profile, { foreignKey: 'profile_id', targetKey: 'id' })
+//Profile.hasMany(ProfileQuestion, { foreignKey: 'profile_id', targetKey: 'id' })
+//ProfileQuestion.belongsTo(Profile, { foreignKey: 'profile_id', targetKey: 'id' })
 
-Question.hasMany(ProfileQuestion, { foreignKey: 'question_id', targetKey: 'id' })
-ProfileQuestion.belongsTo(Question, { foreignKey: 'question_id', targetKey: 'id' })
-
-ProfileQuestion.hasOne(ResponseOption, { foreignKey: 'correct_response', targetKey: 'id' })
-ResponseOption.belongsTo(ProfileQuestion, { foreignKey: 'correct_response', targetKey: 'id' })
+//Question.hasMany(ProfileQuestion, { foreignKey: 'question_id', targetKey: 'id' })
+//ProfileQuestion.belongsTo(Question, { foreignKey: 'question_id', targetKey: 'id' })
 
 Profile.belongsToMany(Question, { through: ProfileQuestion })
 Question.belongsToMany(Profile, { through: ProfileQuestion })
 
+ResponseOption.belongsTo(Question, { foreignKey: 'question_id', targetKey: 'id' })
+Question.hasMany(ResponseOption, { foreignKey: 'question_id', targetKey: 'id' })
+
+ProfileQuestion.belongsTo(ResponseOption, { foreignKey: 'correct_response', sourceKey: 'id' })
+
 ProfileQuestion.hasMany(Response, { foreignKey: 'profile_question_id', targetKey: 'id' })
 Response.belongsTo(ProfileQuestion, { foreignKey: 'profile_question_id', targetKey: 'id' })
 
-Response.hasOne(ResponseOption, { foreignKey: 'response_option_id', targetKey: 'id' })
-ResponseOption.belongsTo(Response, { foreignKey: 'response_option_id', targetKey: 'id' })
+Response.belongsTo(ResponseOption, { foreignKey: 'response_option_id', targetKey: 'id' })
+//Response.hasOne(ResponseOption, { foreignKey: 'response_option_id', targetKey: 'id' })
 
 Response.belongsTo(Account, { foreignKey: 'account_id', targetKey: 'id' })
 Account.hasMany(Response, { foreignKey: 'account_id', targetKey: 'id' })
