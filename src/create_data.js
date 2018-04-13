@@ -15,7 +15,7 @@ const randBetween = (start, end) => {
   return Math.floor(Math.random() * (end-start) + start)
 }
 
-const createProfileImage = async (profileId) => {
+const createProfilePicture = async (profileId) => {
   const imgName = `img/profiles/profile${profileId}.jpg`
   const img = fs.readFileSync(`img/${profileId}.jpg`)
   await sharp(img)
@@ -156,11 +156,11 @@ const run = async n => {
     const profile = await createProfile(account)
     console.log(`profile ${i} created`)
     await createProfileQuestions(profile, questions, options)
-    const image = await createProfileImage(profile.id)
+    const picture = await createProfilePicture(profile.id)
     console.log('image created')
     const thumbnail = await createThumbnail(profile.id)
     console.log('thumbnail created')
-    await profile.set('image', image)
+    await profile.set('picture', picture)
     await profile.set('thumbnail', thumbnail)
     await profile.save()
     profiles.push(profile)

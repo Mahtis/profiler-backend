@@ -21,11 +21,11 @@ const Account = sequelize.define('account', {
   email: { type: Sequelize.STRING },
   role: { type: Sequelize.STRING }
 },
-  {
-    tableName: 'account',
-    underscored: true,
-    timestamps: true
-  })
+{
+  tableName: 'account',
+  underscored: true,
+  timestamps: true
+})
 
 const Profile = sequelize.define('profile', {
   id: {
@@ -38,11 +38,11 @@ const Profile = sequelize.define('profile', {
   picture: { type: Sequelize.STRING },
   thumbnail: { type: Sequelize.STRING }
 },
-  {
-    tableName: 'profile',
-    underscored: true,
-    timestamps: true
-  })
+{
+  tableName: 'profile',
+  underscored: true,
+  timestamps: true
+})
 
 const Question = sequelize.define('question', {
   id: {
@@ -52,11 +52,11 @@ const Question = sequelize.define('question', {
   },
   text: { type: Sequelize.STRING }
 },
-  {
-    tableName: 'question',
-    underscored: true,
-    timestamps: false
-  })
+{
+  tableName: 'question',
+  underscored: true,
+  timestamps: false
+})
 
 const ResponseOption = sequelize.define('response_option', {
   id: {
@@ -67,11 +67,11 @@ const ResponseOption = sequelize.define('response_option', {
   question_id: { type: Sequelize.BIGINT },
   option_value: { type: Sequelize.STRING }
 },
-  {
-    tableName: 'response_option',
-    underscored: true,
-    timestamps: false
-  })
+{
+  tableName: 'response_option',
+  underscored: true,
+  timestamps: false
+})
 
 const ProfileQuestion = sequelize.define('profile_question', {
   id: {
@@ -83,11 +83,11 @@ const ProfileQuestion = sequelize.define('profile_question', {
   question_id: { type: Sequelize.BIGINT },
   correct_response: { type: Sequelize.BIGINT }
 },
-  {
-    tableName: 'profile_question',
-    underscored: true,
-    timestamps: false
-  })
+{
+  tableName: 'profile_question',
+  underscored: true,
+  timestamps: false
+})
 
 const Response = sequelize.define('response', {
   id: {
@@ -99,11 +99,11 @@ const Response = sequelize.define('response', {
   account_id: { type: Sequelize.UUID },
   profile_question_id: { type: Sequelize.BIGINT }
 },
-  {
-    tableName: 'response',
-    underscored: true,
-    timestamps: true
-  })
+{
+  tableName: 'response',
+  underscored: true,
+  timestamps: true
+})
 
 Profile.belongsTo(Account, { foreignKey: 'account_id', targetKey: 'id' })
 Account.hasMany(Profile, { foreignKey: 'account_id', targetKey: 'id' })
