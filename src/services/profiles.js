@@ -1,10 +1,22 @@
+const { Op } = require('sequelize')
 const { Profile, Question, ResponseOption } = require('../models')
 
-const getProfile = id => {
+const getProfile = async id => {
   return Profile.findById(id, { include: { model: Question, include: ResponseOption } })
 }
 
-const getAll = () => {
+const getProfiles = async ids => {
+  return Profile.find({ where: { id: ids }})
+}
+
+const getNProfiles = async (n, fromId = null) => {
+  if (fromId) {
+    return Profile.find({ where: { id: { [Op.lt]: fromId } }, order: [['id', 'DESC']], limit: n }) 
+  }
+  return Profile.findAll({ order: [['id', 'DESC']], limit: n }) 
+}
+
+const getAll = async () => {
   return Profile.findAll()
 }
 
@@ -17,4 +29,4 @@ const isUserProfileOwner = (accountId) => {
   return false
 }
 
-module.exports = { getProfile, getAll }
+module.exports = { getProfile, getAll, getProfiles, getNProfiles }

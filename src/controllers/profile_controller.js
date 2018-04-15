@@ -1,11 +1,11 @@
 const router = require('express').Router()
 
-const Profiles = require('../services/profiles')
+const profileService = require('../services/profiles')
 
-router.get('/', async (req, res) => {
-  console.log('req')
-  const profiles = await Profiles.getAll()
-  res.status(200).json(profiles)
+router.get('/:profileId', async (req, res) => {
+  const { profileId } = req.params
+  const profile = await profileService.getProfile(profileId)
+  res.status(200).json(profile)
 })
 
 module.exports = router
