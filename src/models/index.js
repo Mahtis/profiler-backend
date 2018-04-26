@@ -14,11 +14,11 @@ const Account = sequelize.define('account', {
     defaultValue: Sequelize.UUIDV4
   },
   username: { type: Sequelize.STRING, unique: true, allowNull: false },
-  password: { type: Sequelize.STRING },
+  password: { type: Sequelize.STRING, allowNull: false },
   firstName: { type: Sequelize.STRING },
   lastName: { type: Sequelize.STRING },
   birthdate: { type: Sequelize.DATEONLY },
-  email: { type: Sequelize.STRING },
+  email: { type: Sequelize.STRING, allowNull: false },
   role: { type: Sequelize.STRING }
 },
 {
@@ -33,7 +33,7 @@ const Profile = sequelize.define('profile', {
     type: Sequelize.BIGINT,
     autoIncrement: true
   },
-  account_id: { type: Sequelize.UUID },
+  account_id: { type: Sequelize.UUID, allowNull: false },
   active: { type: Sequelize.BOOLEAN },
   picture: { type: Sequelize.STRING },
   thumbnail: { type: Sequelize.STRING }
@@ -50,7 +50,7 @@ const Question = sequelize.define('question', {
     type: Sequelize.BIGINT,
     autoIncrement: true
   },
-  text: { type: Sequelize.STRING }
+  text: { type: Sequelize.STRING, allowNull: false }
 },
 {
   tableName: 'question',
@@ -64,8 +64,8 @@ const ResponseOption = sequelize.define('response_option', {
     type: Sequelize.BIGINT,
     autoIncrement: true
   },
-  question_id: { type: Sequelize.BIGINT },
-  option_value: { type: Sequelize.STRING }
+  question_id: { type: Sequelize.BIGINT, allowNull: false },
+  option_value: { type: Sequelize.STRING, allowNull: false }
 },
 {
   tableName: 'response_option',
@@ -79,9 +79,9 @@ const ProfileQuestion = sequelize.define('profile_question', {
     type: Sequelize.BIGINT,
     autoIncrement: true
   },
-  profile_id: { type: Sequelize.BIGINT },
-  question_id: { type: Sequelize.BIGINT },
-  correct_response: { type: Sequelize.BIGINT }
+  profile_id: { type: Sequelize.BIGINT, allowNull: false },
+  question_id: { type: Sequelize.BIGINT, allowNull: false },
+  correct_response: { type: Sequelize.BIGINT, allowNull: false }
 },
 {
   tableName: 'profile_question',
@@ -95,9 +95,10 @@ const Response = sequelize.define('response', {
     type: Sequelize.BIGINT,
     autoIncrement: true
   },
-  response_option_id: { type: Sequelize.BIGINT },
-  account_id: { type: Sequelize.UUID },
-  profile_question_id: { type: Sequelize.BIGINT }
+  response_option_id: { type: Sequelize.BIGINT, allowNull: false },
+  account_id: { type: Sequelize.UUID, allowNull: false },
+  profile_question_id: { type: Sequelize.BIGINT, allowNull: false },
+  correct: { type: Sequelize.BOOLEAN }
 },
 {
   tableName: 'response',

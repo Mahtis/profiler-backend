@@ -16,8 +16,8 @@ const randBetween = (start, end) => {
 }
 
 const createProfilePicture = async (profileId) => {
-  const imgName = `img/profiles/profile${profileId}.jpg`
-  const img = fs.readFileSync(`img/${profileId}.jpg`)
+  const imgName = `public/img/profiles/profile${profileId}.jpg`
+  const img = fs.readFileSync(`public/img/${profileId}.jpg`)
   await sharp(img)
     .resize(500, 600)
     .crop()
@@ -31,17 +31,17 @@ const createProfilePicture = async (profileId) => {
     if (err) throw err
   })
   */
-  return imgName
+  return `img/profiles/profile${profileId}.jpg`
 }
 
 const createThumbnail = async imgName => {
-  const img = fs.readFileSync(`img/profiles/profile${imgName}.jpg`)
-  const thumbName = `img/thumbnails/thumb_${imgName}.jpg`
+  const img = fs.readFileSync(`public/img/profiles/profile${imgName}.jpg`)
+  const thumbName = `public/img/thumbnails/thumb_${imgName}.jpg`
   await sharp(img)
     .resize(200, 200)
     .crop()
     .toFile(thumbName)
-  return thumbName
+  return `img/thumbnails/thumb_${imgName}.jpg`
 }
 
 const createAccounts = async (n = 1) => {
@@ -63,11 +63,11 @@ const createAccounts = async (n = 1) => {
 
 const createProfile = async (account) => {
   const profile = await Profile.create({
-    active: true
+    active: true,
+    account_id: account.id
     // picture: 'img/prof1',
     // thumbnail: 'img/thumbnails/prof1'
   })
-  await profile.setAccount(account)
   return profile
 }
 
@@ -117,16 +117,19 @@ const getProfileQuestions = async profile => {
 }
 
 const createResponse = async (account, option, profileQuestion) => {
-  const response = await Response.create()
-  await response.setAccount(account)
-  await response.setResponse_option(option)
-  await response.setProfile_question(profileQuestion)
+  const response = await Response.create({
+    correct: (profileQuestion.correct_response === option.id),
+    account_id: account.id,
+    response_option_id: option.id,
+    profile_question_id: profileQuestion.id
+  })
   return response
 }
 
 const run = async n => {
   await sequelize.sync({ force: true })
   console.log('forced')
+
   const questions = await createQuestions([
     'How old is this person?', 
     'How tall is this person?',

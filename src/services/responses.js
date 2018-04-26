@@ -4,21 +4,19 @@ const getProfileQuestionResponses = async (profileQuestion) => {
   return profileQuestion.getResponses()
 }
 
-const getProfileResponseOptionPercentages = async (profileId, responseOptions) => {
-  /*const profile = await Profile.findById(profileId, { include: Question })
-  //const responses = await Promise.all(profile.questions.map(async question => {
-  //  const r = await getProfileQuestionResponses(question.profile_question) 
-  //  return { responses: r }
-  //}))*/
-  const resp = await Response.findAll({
-    where: {
-      response_option_id: responseOptions,
-      profile_question_id: [1, 2, 3, 4, 5, 6] 
-    } 
-  })  
-  console.log(resp.length)
-  
+const getResponseAmounts = async (responses) => {
+  const amounts = await Promise.all(responses.map(async (resp) => {
+    const { profile_question_id, response_option_id } = resp
+    const total = await Response.findAll({where: { profile_question_id }})
+    const amount = total.filter(t => parseInt(t.response_option_id) === response_option_id)
+    return { profile_question_id,
+      response_option_id,
+      total: total.length,
+      amount: amount.length }
+  }))
+  return amounts
 }
+
 /**
  * Get user response options for profile. 
  * Returns empty if the user has not rated the profile yet.
@@ -51,7 +49,21 @@ const getResponsesForProfile = async (profileId) => {
   return responses
 }
 
+const saveResponses = async (accountId, responses) => {
+  const profileQuestions = Object.keys(responses)
+  const list = await Promise.all(profileQuestions.map(async pq => {
+    console.log(`${accountId} -- ${pq} -- ${responses[pq]}`)
+    return Response.build({
+      account_id: accountId,
+      profile_question_id: parseInt(pq),
+      response_option_id: parseInt(responses[pq])
+    })
+  }))
+  return list
+}
+
 module.exports = { 
   getProfileQuestionResponses,
   getResponsesForProfile,
-  getProfileResponseOptionPercentages }
+  getResponseAmounts,
+  saveResponses }
