@@ -2,6 +2,7 @@ const fs = require('fs')
 const axios = require('axios')
 const faker = require('faker')
 const sharp = require('sharp')
+const bcrypt = require('bcrypt')
 const {
   sequelize,
   Account,
@@ -10,6 +11,8 @@ const {
   ResponseOption,
   Response,
   ProfileQuestion } = require('./models/index')
+
+const saltRounds = 10
 
 const randBetween = (start, end) => {
   return Math.floor(Math.random() * (end-start) + start)
@@ -47,9 +50,11 @@ const createThumbnail = async imgName => {
 const createAccounts = async (n = 1) => {
   const users = []
   for (let i=0; i<n; i++) {
+    const username = faker.internet.userName()
+    const password = bcrypt.hashSync(username, saltRounds)
     const u = await Account.create({
-      username: faker.internet.userName(),
-      password: faker.internet.password(),
+      username,
+      password,
       firstName: faker.name.firstName(),
       lastName: faker.name.lastName(),
       birthdate: faker.date.between('1950-01-01', '2000-01-01').toISOString().slice(0, 10),

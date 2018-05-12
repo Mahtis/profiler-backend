@@ -18,11 +18,13 @@
   "homepage": "https://github.com/Mahtis/profiler-backend#readme",
   "dependencies": {
     "axios": "^0.18.0",
+    "bcrypt": "^2.0.1",
     "body-parser": "^1.18.2",
     "cors": "^2.8.4",
     "dotenv": "^5.0.1",
     "express": "^4.16.2",
     "faker": "^4.1.0",
+    "jsonwebtoken": "^8.2.1",
     "npm": "^5.7.1",
     "pg": "^7.4.1",
     "pg-hstore": "^2.3.2",
