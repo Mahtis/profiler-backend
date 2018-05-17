@@ -1,7 +1,7 @@
 const { Account } = require('../models/index')
 
-const getUser = async () => {
-  return Account.findAll()
+const getUser = async (id) => {
+  return Account.findById(id)
 }
 
 module.exports = { getUser }

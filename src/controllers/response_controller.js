@@ -2,6 +2,7 @@ const router = require('express').Router()
 
 const responseService = require('../services/responses')
 const accountService = require('../services/accounts')
+const { checkAuth } = require('../services/auth')
 
 router.get('/', async (req, res) => {
   //const profile = await Profiles.getProfile(1)
@@ -12,11 +13,15 @@ router.get('/', async (req, res) => {
 })
 
 router.post('/', async (req, res) => {
-  const user = await accountService.getUser()
-  const accountId = user[0].id
+  const user = await checkAuth(req)
+  if (!user) {
+    res.status(401).end()
+    return
+  }
+  const accountId = user.id
   const responses = await responseService.saveResponses(accountId, req.body)
   const amounts = await responseService.getResponseAmounts(responses)
-  //console.log(responses)
+  console.log(responses)
   res.status(201).json({ amounts })
 })
 
