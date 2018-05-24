@@ -22,4 +22,23 @@ router.get('/:profileId', async (req, res) => {
   res.status(200).json(response)
 })
 
+/**
+ * Get user's own profiles with their stats.
+ */
+router.get('/', async (req, res) =>  {
+  const user = await checkAuth(req)
+  if (!user) {
+    res.status(401).json({msg: 'Please login first.'})
+    return
+  }
+  const profiles = await profileService.getUserProfiles(user.id)
+  console.log(profiles[0])
+  const stats = await responseService.getStatsForProfiles(profiles)
+  const statProfiles = profiles.map((profile, i) => {
+    return { id: profile.id, thumbnail: profile.thumbnail, active: profile.active, correct: stats[i]}
+  })
+  console.log(statProfiles)
+  res.status(200).json(statProfiles)
+})
+
 module.exports = router

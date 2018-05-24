@@ -68,9 +68,31 @@ const saveResponses = async (accountId, responses) => {
   return list
 }
 
+const getStatsForProfiles = async (profiles) => {
+  if (profiles.length) {
+    const percentages = await Promise.all(profiles.map(async profile => {
+      const questionStats = await getCorrectResponsesForProfile(profile.id)
+      const stat = questionStats.reduce((total, curStat) => total + curStat.correct / curStat.total, 0)
+      return stat / questionStats.length * 100
+    }))
+    return percentages
+  }
+}
+
+const getCorrectResponsesForProfile = async (profile_id) => {
+  const questions = await ProfileQuestion.findAll({ where: { profile_id } })
+  return await Promise.all(questions.map(async question => {
+    const responses = await Response.findAll({ where: { profile_question_id: question.id }})
+    const corrects = responses.filter(resp => resp.correct)
+    return {total: responses.length, correct: corrects.length}
+  }))
+}
+
 module.exports = { 
   getProfileQuestionResponses,
   getUserResponsesForProfile,
   getResponsesForProfile,
   getResponseAmounts,
-  saveResponses }
+  saveResponses,
+  getStatsForProfiles,
+  getCorrectResponsesForProfile }
