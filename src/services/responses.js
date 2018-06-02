@@ -17,6 +17,25 @@ const getResponseAmounts = async (responses) => {
   return amounts
 }
 
+const getUserResponses = async (account_id) =>  Response.findAll({ where: { account_id }, include: ProfileQuestion })
+
+/**
+ * Calculates response amounts per profile.
+ * Returns an object with profile ids as keys and each profile contains
+ * how many responses were correct, and total number of responses.
+ * @param {Reponse} responses all responses of a user.
+ */
+const calculateResponsesPerProfile = (responses) => {
+  const profiles = {}
+  responses.map(response => {
+    profileId = response.profile_question.profile_id
+    if (!profiles[profileId]) profiles[profileId] = { total: 0, correct: 0 }
+    profiles[profileId].total += 1
+    if (response.correct) profiles[profileId].correct += 1
+  })
+  return profiles
+}
+
 /**
  * Get user response options for profile. 
  * Returns empty if the user has not rated the profile yet.
@@ -73,7 +92,8 @@ const getStatsForProfiles = async (profiles) => {
     const percentages = await Promise.all(profiles.map(async profile => {
       const questionStats = await getCorrectResponsesForProfile(profile.id)
       const stat = questionStats.reduce((total, curStat) => total + curStat.correct / curStat.total, 0)
-      return stat / questionStats.length * 100
+      const correct = stat / questionStats.length * 100
+      return { correct, total: questionStats.length }
     }))
     return percentages
   }
@@ -95,4 +115,6 @@ module.exports = {
   getResponseAmounts,
   saveResponses,
   getStatsForProfiles,
-  getCorrectResponsesForProfile }
+  getCorrectResponsesForProfile,
+  getUserResponses,
+  calculateResponsesPerProfile }

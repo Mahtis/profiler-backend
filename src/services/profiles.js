@@ -31,4 +31,6 @@ const isUserProfileOwner = (accountId) => {
 
 const getUserProfiles = async (account_id) => Profile.findAll({ where: { account_id }, include: [Question] })
 
-module.exports = { getProfile, getAll, getProfiles, getNProfiles, getUserProfiles }
+const getThumbnails = async (profiles) => Profile.findAll({ where: {id: profiles}, attributes: ['id', 'thumbnail'] })
+
+module.exports = { getProfile, getAll, getProfiles, getNProfiles, getUserProfiles, getThumbnails }

@@ -35,7 +35,11 @@ router.get('/', async (req, res) =>  {
   console.log(profiles[0])
   const stats = await responseService.getStatsForProfiles(profiles)
   const statProfiles = profiles.map((profile, i) => {
-    return { id: profile.id, thumbnail: profile.thumbnail, active: profile.active, correct: stats[i]}
+    return { id: profile.id,
+      thumbnail: profile.thumbnail,
+      active: profile.active,
+      correct: stats[i].correct,
+      total: stats[i].total }
   })
   console.log(statProfiles)
   res.status(200).json(statProfiles)
