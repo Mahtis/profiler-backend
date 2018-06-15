@@ -1,15 +1,17 @@
 const { Response, Profile, Question, ResponseOption, ProfileQuestion } = require('../models')
 
-const getProfileQuestionResponses = async (profileQuestion) => {
-  return profileQuestion.getResponses()
+const getProfileResponses = async (profile) => {
+  return profile.getResponses()
 }
 
+// Should this have the question_id as well?
 const getResponseAmounts = async (responses) => {
   const amounts = await Promise.all(responses.map(async (resp) => {
-    const { profile_question_id, response_option_id } = resp
-    const total = await Response.findAll({where: { profile_question_id }})
+    const { profile_id, response_option_id } = resp
+    const total = await Response.findAll({where: { profile_id }})
     const amount = total.filter(t => t.response_option_id === response_option_id)
-    return { profile_question_id,
+    return {
+      profile_id,
       response_option_id,
       total: total.length,
       amount: amount.length }
@@ -17,7 +19,7 @@ const getResponseAmounts = async (responses) => {
   return amounts
 }
 
-const getUserResponses = async (account_id) =>  Response.findAll({ where: { account_id }, include: ProfileQuestion })
+const getUserResponses = async (account_id) =>  Response.findAll({ where: { account_id } })
 
 /**
  * Calculates response amounts per profile.
@@ -28,7 +30,7 @@ const getUserResponses = async (account_id) =>  Response.findAll({ where: { acco
 const calculateResponsesPerProfile = (responses) => {
   const profiles = {}
   responses.map(response => {
-    profileId = response.profile_question.profile_id
+    profileId = response.profile_id
     if (!profiles[profileId]) profiles[profileId] = { total: 0, correct: 0 }
     profiles[profileId].total += 1
     if (response.correct) profiles[profileId].correct += 1
@@ -42,21 +44,18 @@ const calculateResponsesPerProfile = (responses) => {
  * @param {*} accountId 
  * @param {*} profileId 
  */
-const getUserResponsesForProfile = async (account, profileId) => {
-  const profileQuestions = await ProfileQuestion.findAll({where: {profile_id: profileId}})
-  //console.log(profileQuestions)
-  const profileQuestionIds = profileQuestions.map(pq => pq.id)
-  //console.log(profileQuestionIds)
-  const userResponses = await account.getResponses({where: {profile_question_id: profileQuestionIds}})
-  //console.log(userResponses)
-  // TODO: find and return the response options of user
+const getUserResponsesForProfile = async (account, profile) => {
+  const userResponses = await account.getResponses({include: ResponseOption})
+    .then(responses => responses.filter(response => response.profile_id === profile.id))
+  if (userResponses.length === 0) {
+    return userResponses
+  }
   // If user has not responded yet, return empty array
   return userResponses
 }
 
-const getResponsesForProfile = async (profileId) => {
-  const profile = await Profile.findById(profileId, { include: Question })
-  const questions = profile.questions
+const getResponsesForProfile = async (profile) => {
+  const questions = profile.getQuestions()
   const responses = []
   for (let i = 0; i < questions.length; i += 1) {
     const question = questions[i]
@@ -71,13 +70,14 @@ const getResponsesForProfile = async (profileId) => {
         pq[response.response_option_id] += 1
     })
   }
+  //console.log(responses)
   return responses
 }
 
 const saveResponses = async (accountId, responses) => {
   const profileQuestions = Object.keys(responses)
   const list = await Promise.all(profileQuestions.map(async pq => {
-    console.log(`${accountId} -- ${pq} -- ${responses[pq]}`)
+    //console.log(`${accountId} -- ${pq} -- ${responses[pq]}`)
     return Response.create({
       account_id: accountId,
       profile_question_id: parseInt(pq),
@@ -90,7 +90,7 @@ const saveResponses = async (accountId, responses) => {
 const getStatsForProfiles = async (profiles) => {
   if (profiles.length) {
     const percentages = await Promise.all(profiles.map(async profile => {
-      const questionStats = await getCorrectResponsesForProfile(profile.id)
+      const questionStats = await getCorrectResponsesForProfile(profile)
       const stat = questionStats.reduce((total, curStat) => total + curStat.correct / curStat.total, 0)
       const correct = stat / questionStats.length * 100
       return { correct, total: questionStats.length }
@@ -99,17 +99,58 @@ const getStatsForProfiles = async (profiles) => {
   }
 }
 
-const getCorrectResponsesForProfile = async (profile_id) => {
-  const questions = await ProfileQuestion.findAll({ where: { profile_id } })
-  return await Promise.all(questions.map(async question => {
-    const responses = await Response.findAll({ where: { profile_question_id: question.id }})
-    const corrects = responses.filter(resp => resp.correct)
-    return {total: responses.length, correct: corrects.length}
+const getCorrectResponsesForProfile = async (profile) => {
+  const responses = await profile.getResponses({ include: ResponseOption })
+  const questions = await profile.getQuestions()
+  return Promise.all(questions.map(question => {
+    const questionResponses = responses.filter(response => response.response_option.question_id === question.id)
+    const corrects = questionResponses.filter(response => response.correct)
+    return { total: questionResponses.length, correct: corrects.length }
   }))
+  // const questions = await ProfileQuestion.findAll({ where: { profile_id } })
+  // return await Promise.all(questions.map(async question => {
+  //   const responses = await Response.findAll({ where: { profile_question_id: question.id }})
+  //   const corrects = responses.filter(resp => resp.correct)
+  //   return {total: responses.length, correct: corrects.length}
+  // }))
+}
+
+/**
+ * Simply calculate from a set of responses the proportion of corrects.
+ * @param {[Response]} responses 
+ */
+const correctResposePercentage = (responses) => (
+  responses.filter(response => response.correct).length / responses.length * 100
+)
+
+/**
+ * Compares responses to those of others.
+ * Returns the proportion of how many other responded with the same option.
+ * { profile_id,
+      response_option_id,
+      total: total.length,
+      amount: amount.length }
+ * @param {[Response]} responses 
+ */
+const calculateResponseAgreement = async (responses) => {
+  const amounts = await getResponseAmounts(responses)
+  const profiles = {}
+  amounts.map(question => {
+    if (!profiles[question.profile_id]) {
+      profiles[question.profile_id] = {total: 0, agreement: 0}
+    }
+    profiles[question.profile_id].total += question.total
+    profiles[question.profile_id].agreement += question.amount
+  })
+  return Object.keys(profiles).map(id => {
+    return {
+      profile_id: id,
+      agreement: profiles[id].agreement / profiles[id].total * 100 }
+  })
 }
 
 module.exports = { 
-  getProfileQuestionResponses,
+  getProfileResponses,
   getUserResponsesForProfile,
   getResponsesForProfile,
   getResponseAmounts,
@@ -117,4 +158,6 @@ module.exports = {
   getStatsForProfiles,
   getCorrectResponsesForProfile,
   getUserResponses,
-  calculateResponsesPerProfile }
+  calculateResponsesPerProfile,
+  correctResposePercentage,
+  calculateResponseAgreement }

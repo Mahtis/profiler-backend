@@ -15,19 +15,22 @@ router.get('/', async (req, res) => {
   }
   const responses = await responseService.getUserResponses(user.id)
   const responseAmounts = responseService.calculateResponsesPerProfile(responses)
+  const responseAgreements = await responseService.calculateResponseAgreement(responses)
+  const totalCorrect = responseService.correctResposePercentage(responses)
   const thumbnails = await profileService.getThumbnails(Object.keys(responseAmounts))
   const profiles = Object.keys(responseAmounts).map(key => {
     return {
       profileId: key,
       total: responseAmounts[key].total,
+      agreement: responseAgreements.find(profile => profile.profile_id === key),
       correct: responseAmounts[key].correct,
-      thumbnail: thumbnails.find(profile => profile.id===key).thumbnail
+      thumbnail: thumbnails.find(profile => profile.id === key).thumbnail
     }
   })
   //const profile = await Profiles.getProfile(1)
   //const pq = profile.questions[0].profile_question
   //const responses = await responseService.getResponsesForProfile(1)
-  res.status(200).json(profiles)
+  res.status(200).json({ profiles, totalCorrect })
 })
 
 router.post('/', async (req, res) => {
@@ -39,7 +42,7 @@ router.post('/', async (req, res) => {
   const accountId = user.id
   const responses = await responseService.saveResponses(accountId, req.body)
   const amounts = await responseService.getResponseAmounts(responses)
-  console.log(responses)
+  //console.log(responses)
   res.status(201).json({ amounts })
 })
 

@@ -97,7 +97,7 @@ const Response = sequelize.define('response', {
   },
   response_option_id: { type: Sequelize.BIGINT, allowNull: false },
   account_id: { type: Sequelize.UUID, allowNull: false },
-  profile_question_id: { type: Sequelize.BIGINT, allowNull: false },
+  profile_id: { type: Sequelize.BIGINT, allowNull: false },
   correct: { type: Sequelize.BOOLEAN }
 },
 {
@@ -109,8 +109,8 @@ const Response = sequelize.define('response', {
 Profile.belongsTo(Account, { foreignKey: 'account_id', targetKey: 'id' })
 Account.hasMany(Profile, { foreignKey: 'account_id', targetKey: 'id' })
 
-//Profile.hasMany(ProfileQuestion, { foreignKey: 'profile_id', targetKey: 'id' })
-//ProfileQuestion.belongsTo(Profile, { foreignKey: 'profile_id', targetKey: 'id' })
+Profile.hasMany(Response, { foreignKey: 'profile_id', targetKey: 'id' })
+Response.belongsTo(Profile, { foreignKey: 'profile_id', targetKey: 'id' })
 
 //Question.hasMany(ProfileQuestion, { foreignKey: 'question_id', targetKey: 'id' })
 //ProfileQuestion.belongsTo(Question, { foreignKey: 'question_id', targetKey: 'id' })
@@ -127,7 +127,6 @@ ProfileQuestion.hasMany(Response, { foreignKey: 'profile_question_id', targetKey
 Response.belongsTo(ProfileQuestion, { foreignKey: 'profile_question_id', targetKey: 'id' })
 
 Response.belongsTo(ResponseOption, { foreignKey: 'response_option_id', targetKey: 'id' })
-//Response.hasOne(ResponseOption, { foreignKey: 'response_option_id', targetKey: 'id' })
 
 Response.belongsTo(Account, { foreignKey: 'account_id', targetKey: 'id' })
 Account.hasMany(Response, { foreignKey: 'account_id', targetKey: 'id' })

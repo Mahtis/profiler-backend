@@ -126,7 +126,7 @@ const createResponse = async (account, option, profileQuestion) => {
     correct: (profileQuestion.correct_response === option.id),
     account_id: account.id,
     response_option_id: option.id,
-    profile_question_id: profileQuestion.id
+    profile_id: profileQuestion.profile_id
   })
   return response
 }

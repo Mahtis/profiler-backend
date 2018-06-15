@@ -12,10 +12,10 @@ router.get('/:profileId', async (req, res) => {
   const user = await checkAuth(req)
   if (user) {
     if (profile.account_id === user.id) {
-      const allResponses = responseService.getResponsesForProfile(profile.id)
+      const allResponses = responseService.getResponsesForProfile(profile)
       response.allResponses = allResponses
     }
-    const responses = await responseService.getUserResponsesForProfile(user, profile.id)
+    const responses = await responseService.getUserResponsesForProfile(user, profile)
     const amounts = await responseService.getResponseAmounts(responses)
     response.amounts = amounts
   }  
@@ -32,7 +32,7 @@ router.get('/', async (req, res) =>  {
     return
   }
   const profiles = await profileService.getUserProfiles(user.id)
-  console.log(profiles[0])
+  //console.log(profiles[0])
   const stats = await responseService.getStatsForProfiles(profiles)
   const statProfiles = profiles.map((profile, i) => {
     return { id: profile.id,
@@ -41,7 +41,7 @@ router.get('/', async (req, res) =>  {
       correct: stats[i].correct,
       total: stats[i].total }
   })
-  console.log(statProfiles)
+  //console.log(statProfiles)
   res.status(200).json(statProfiles)
 })
 
