@@ -17,6 +17,7 @@ router.get('/:profileId', async (req, res) => {
     }
     const responses = await responseService.getUserResponsesForProfile(user, profile)
     const amounts = await responseService.getResponseAmounts(responses)
+    response.correct = responses.filter(response => response.correct).length
     response.amounts = amounts
   }  
   res.status(200).json(response)
