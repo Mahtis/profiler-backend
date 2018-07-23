@@ -2,6 +2,7 @@ const index = require('./controllers/index_controller')
 const profiles = require('./controllers/profile_controller')
 const responses = require('./controllers/response_controller')
 const accounts = require('./controllers/account_controller')
+const questions = require('./controllers/question_controller')
 const login = require('./controllers/login_controller')
 
 module.exports = (app) => {
@@ -10,4 +11,5 @@ module.exports = (app) => {
   app.use('/accounts', accounts)
   app.use('/profiles', profiles)
   app.use('/responses', responses)
+  app.use('/questions', questions)
 }

@@ -1,5 +1,5 @@
 const { Op } = require('sequelize')
-const { Profile, Question, ResponseOption } = require('../models')
+const { Profile, Question, ProfileQuestion, ResponseOption } = require('../models')
 
 const getProfile = async id => {
   return Profile.findById(id, { include: { model: Question, include: ResponseOption } })
@@ -33,4 +33,20 @@ const getUserProfiles = async (account_id) => Profile.findAll({ where: { account
 
 const getThumbnails = async (profiles) => Profile.findAll({ where: {id: profiles}, attributes: ['id', 'thumbnail'] })
 
-module.exports = { getProfile, getAll, getProfiles, getNProfiles, getUserProfiles, getThumbnails }
+const createProfile = async (profile) => {
+  const createdProfile = await Profile.create(profile)
+  const { profileQuestions } = profile
+  profileQuestions.map(pq => pq.profile_id = createdProfile.id)
+  await ProfileQuestion.bulkCreate(profileQuestions)
+  return getProfile(createdProfile.id)
+}
+
+module.exports = {
+  getProfile,
+  getAll,
+  getProfiles,
+  getNProfiles,
+  getUserProfiles,
+  getThumbnails,
+  createProfile
+}

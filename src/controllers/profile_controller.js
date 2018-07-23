@@ -1,8 +1,10 @@
 const router = require('express').Router()
+const formidable = require('formidable')
 
 const { checkAuth } = require('../services/auth')
 const profileService = require('../services/profiles')
 const responseService = require('../services/responses')
+const pictureService = require('../services/picture_service')
 
 router.get('/:profileId', async (req, res) => {
   const response = {}
@@ -44,6 +46,33 @@ router.get('/', async (req, res) =>  {
   })
   //console.log(statProfiles)
   res.status(200).json(statProfiles)
+})
+
+router.post('/', async (req, res) => {
+  const user = await checkAuth(req)
+  const form = new formidable.IncomingForm()
+  form.keepExtensions = true
+  const profile = { account_id: user.id }
+  const profileQuestions = []
+  let filePath
+  form.parse(req)
+  form.on('field', (name, value) => {
+    profileQuestions.push({ question_id: name, correct_response: value })
+  })
+  form.on('file', async (name, file) => {
+      filePath = file.path
+  })
+  form.on('end', async () => {
+    profile.profileQuestions = profileQuestions
+    const pic = await pictureService.createProfilePictureAndThumbnail(filePath)
+    profile.picture = pic.picture
+    profile.thumbnail = pic.thumbnail
+    profile.active = true
+    createdProfile = await profileService.createProfile(profile)
+    // console.log(profile)
+    
+  })
+  res.status(200).end()
 })
 
 module.exports = router
