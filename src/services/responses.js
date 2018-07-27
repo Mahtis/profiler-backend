@@ -133,9 +133,13 @@ const getCorrectResponsesForProfile = async (profile) => {
  * Simply calculate from a set of responses the proportion of corrects.
  * @param {[Response]} responses 
  */
-const correctResposePercentage = (responses) => (
-  responses.filter(response => response.correct).length / responses.length * 100
-)
+const correctResposePercentage = (responses) => {
+  const corrects = responses.filter(response => response.correct).length
+  if (corrects === 0) {
+   return 0
+  }
+  return corrects / responses.length * 100
+}
 
 /**
  * Compares responses to those of others.
