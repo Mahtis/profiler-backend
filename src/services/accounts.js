@@ -1,7 +1,11 @@
 const { Account } = require('../models/index')
+const { hashPassword } = require('../util')
 
-const getUser = async (id) => {
-  return Account.findById(id)
+const getUser = id => Account.findById(id)
+
+const createAccount = (username, firstname, lastname, email, password, role='USER') => {
+  const hashedPassword = hashPassword(password)
+  return Account.create({ username, firstname, lastname, email, password: hashedPassword, role })
 }
 
-module.exports = { getUser }
+module.exports = { getUser, createAccount }

@@ -15,8 +15,8 @@ const Account = sequelize.define('account', {
   },
   username: { type: Sequelize.STRING, unique: true, allowNull: false },
   password: { type: Sequelize.STRING, allowNull: false },
-  firstName: { type: Sequelize.STRING },
-  lastName: { type: Sequelize.STRING },
+  firstname: { type: Sequelize.STRING },
+  lastname: { type: Sequelize.STRING },
   birthdate: { type: Sequelize.DATEONLY },
   email: { type: Sequelize.STRING, allowNull: false },
   role: { type: Sequelize.STRING }
@@ -35,7 +35,7 @@ const Profile = sequelize.define('profile', {
   },
   account_id: { type: Sequelize.UUID, allowNull: false },
   active: { type: Sequelize.BOOLEAN },
-  picture: { type: Sequelize.STRING },
+  picture: { type: Sequelize.STRING, unique: true },
   thumbnail: { type: Sequelize.STRING }
 },
 {

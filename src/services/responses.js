@@ -87,25 +87,39 @@ const saveResponses = async (accountId, responses) => {
   return list
 }
 
+
+/**
+ * Calculates the total proportion of correct responses on given profiles.
+ * @returns {[{correct, total}]} percentage of correct respones and number of reviews
+ * @param {[Profile]} profiles
+ */
 const getStatsForProfiles = async (profiles) => {
   if (profiles.length) {
     const percentages = await Promise.all(profiles.map(async profile => {
       const questionStats = await getCorrectResponsesForProfile(profile)
       const stat = questionStats.reduce((total, curStat) => total + curStat.correct / curStat.total, 0)
-      const correct = stat / questionStats.length * 100
-      return { correct, total: questionStats.length }
+      // relies on the assumption that each question has the same number of responses (which should be true)
+      const correct = isNaN(stat) ? 0 : stat / questionStats[0].total * 100
+      return { correct, total: questionStats[0].total }
     }))
     return percentages
   }
 }
 
+/**
+ * Returns array of stats for questions of a profile.
+ * .correct contains number of correct responses for this question
+ * .total is the total number of responses for question (should be equal for all)
+ * .questionId is the questions id
+ * @param {Profile} profile 
+ */
 const getCorrectResponsesForProfile = async (profile) => {
   const responses = await profile.getResponses({ include: ResponseOption })
   const questions = await profile.getQuestions()
   return Promise.all(questions.map(question => {
     const questionResponses = responses.filter(response => response.response_option.question_id === question.id)
     const corrects = questionResponses.filter(response => response.correct)
-    return { total: questionResponses.length, correct: corrects.length }
+    return { questionId: question.id, total: questionResponses.length, correct: corrects.length }
   }))
   // const questions = await ProfileQuestion.findAll({ where: { profile_id } })
   // return await Promise.all(questions.map(async question => {
