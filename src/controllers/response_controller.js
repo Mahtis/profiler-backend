@@ -33,14 +33,14 @@ router.get('/', async (req, res) => {
   res.status(200).json({ profiles, totalCorrect })
 })
 
-router.post('/', async (req, res) => {
+router.post('/:profileId', async (req, res) => {
   const user = await checkAuth(req)
   if (!user) {
     res.status(401).end()
     return
   }
   const accountId = user.id
-  const responses = await responseService.saveResponses(accountId, req.body)
+  const responses = await responseService.saveResponses(accountId, req.body, req.params.profileId)
   const amounts = await responseService.getResponseAmounts(responses)
   //console.log(responses)
   res.status(201).json({ amounts })

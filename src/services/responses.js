@@ -74,14 +74,17 @@ const getResponsesForProfile = async (profile) => {
   return responses
 }
 
-const saveResponses = async (accountId, responses) => {
+const saveResponses = async (accountId, responses, profileId) => {
   const profileQuestions = Object.keys(responses)
   const list = await Promise.all(profileQuestions.map(async pq => {
+    const question = await ProfileQuestion.findById(pq)
+    const correct = question.correct === responses[pq]
     //console.log(`${accountId} -- ${pq} -- ${responses[pq]}`)
     return Response.create({
       account_id: accountId,
-      profile_question_id: parseInt(pq),
-      response_option_id: parseInt(responses[pq])
+      profile_id: parseInt(profileId),
+      response_option_id: parseInt(responses[pq]),
+      correct
     })
   }))
   return list
