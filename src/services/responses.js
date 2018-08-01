@@ -74,6 +74,12 @@ const getResponsesForProfile = async (profile) => {
   return responses
 }
 
+/**
+ * Save a set of responses for a given profile by a given user.
+ * @param {*} accountId 
+ * @param {*} responses 
+ * @param {*} profileId 
+ */
 const saveResponses = async (accountId, responses, profileId) => {
   const profileQuestions = Object.keys(responses)
   const list = await Promise.all(profileQuestions.map(async pq => {

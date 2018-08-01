@@ -3,8 +3,8 @@ const router = require('express').Router()
 const profileService = require('../services/profiles')
 
 router.get('/', async (req, res) => {
-  // console.log(req)
-  const profiles = await profileService.getNProfiles(16, null)
+  const fromProfile = Number(req.query.from)
+  const profiles = await profileService.getNProfiles(16, fromProfile)
   res.status(200).json(profiles)
 })
 

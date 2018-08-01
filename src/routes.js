@@ -5,11 +5,13 @@ const accounts = require('./controllers/account_controller')
 const questions = require('./controllers/question_controller')
 const login = require('./controllers/login_controller')
 
+const BASE_PATH = '/api'
+
 module.exports = (app) => {
-  app.use('/', index)
-  app.use('/login', login)
-  app.use('/accounts', accounts)
-  app.use('/profiles', profiles)
-  app.use('/responses', responses)
-  app.use('/questions', questions)
+  app.use(`${BASE_PATH}/`, index)
+  app.use(`${BASE_PATH}/login`, login)
+  app.use(`${BASE_PATH}/accounts`, accounts)
+  app.use(`${BASE_PATH}/profiles`, profiles)
+  app.use(`${BASE_PATH}/responses`, responses)
+  app.use(`${BASE_PATH}/questions`, questions)
 }
