@@ -14,10 +14,10 @@ app.use(express.static('public'))
 
 routes(app)
 
-app.get('*', async function (req, res) {
+app.get('*', async (req, res) => {
   res.status(200).json({ hello: 'world' })
 })
 
-app.listen(PORT, function () {
+app.listen(PORT, () => {
   console.log(`Example app listening on port: ${PORT}!`)
 })

@@ -23,7 +23,17 @@ router.get('/', async (req, res) => {
     return
   }
   res.status(400).json({error: 'Not so fast buddy'})
-  
+})
+
+
+router.get('/all', async (req, res) => {
+  const user = await checkAuth(req)
+  if (user) {
+    const accounts = await accountService.getAllAccounts()
+    res.status(200).json(accounts)
+    return
+  }
+  res.status(400).json({error: 'Not so fast buddy'})
 })
 
 module.exports = router
