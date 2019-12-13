@@ -27,7 +27,7 @@
     "faker": "^4.1.0",
     "formidable": "^1.2.1",
     "jsonwebtoken": "^8.2.1",
-    "npm": "^5.7.1",
+    "npm": "^6.13.4",
     "pg": "^7.4.1",
     "pg-hstore": "^2.3.2",
     "sequelize": "^4.35.2",
